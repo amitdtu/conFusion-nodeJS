@@ -204,7 +204,7 @@ dishRouter
       )
       .catch((err) => console.log(err));
   })
-  .psot((req, res, next) => {
+  .post((req, res, next) => {
     res.statusCode = 403;
     res.end(
       `POST operation not supported on /dishes/${req.params.dishId}/comments/${req.params.commentId}`
@@ -212,7 +212,6 @@ dishRouter
   })
   .put((req, res, next) => {
     Dishes.findById(req.params.dishId)
-
       .then(
         (dish) => {
           if (dish != null && dish.comments.id(req.params.commentId) != null) {
