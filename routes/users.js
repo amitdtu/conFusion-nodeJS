@@ -7,6 +7,24 @@ const authenticate = require('../authenticate');
 
 router.use(bodyParser.json());
 
+router.get(
+  '/',
+  authenticate.verifyUser,
+  authenticate.verifyAdmin,
+  (req, res, next) => {
+    User.find()
+      .then(
+        (users) => {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json(users);
+        },
+        (err) => console.log(err)
+      )
+      .catch((err) => console.log(err));
+  }
+);
+
 /* GET users listing. */
 router.post('/signup', (req, res, next) => {
   User.register(
@@ -38,15 +56,6 @@ router.post('/signup', (req, res, next) => {
     }
   );
 });
-
-// router.post('/login', (req, res, next) => {
-// passport.authenticate('local')(req, res, () => {
-//   console.log('authenticated successfully after signup');
-//   res.statusCode = 200;
-//   res.setHeader('Content-Type', 'application/json');
-//   res.json({ success: true, status: 'You are successfully logged in!' });
-// });
-// });
 
 router.post('/login', (req, res, next) => {
   passport.authenticate('local')(req, res, () => {
