@@ -4,11 +4,13 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 var router = express.Router();
 const authenticate = require('../authenticate');
+const cors = require('./cors');
 
 router.use(bodyParser.json());
 
 router.get(
   '/',
+  cors.corsWithOptions,
   authenticate.verifyUser,
   authenticate.verifyAdmin,
   (req, res, next) => {
@@ -26,7 +28,7 @@ router.get(
 );
 
 /* GET users listing. */
-router.post('/signup', (req, res, next) => {
+router.post('/signup', cors.corsWithOptions, (req, res, next) => {
   User.register(
     new User({ username: req.body.username }),
     req.body.password,
@@ -57,7 +59,7 @@ router.post('/signup', (req, res, next) => {
   );
 });
 
-router.post('/login', (req, res, next) => {
+router.post('/login', cors.corsWithOptions, (req, res, next) => {
   passport.authenticate('local')(req, res, () => {
     console.log('authenticated successfully after signup');
     var token = authenticate.getToken({ _id: req.user._id });
@@ -71,7 +73,7 @@ router.post('/login', (req, res, next) => {
   });
 });
 
-router.get('/logout', (req, res, next) => {
+router.get('/logout', cors.corsWithOptions, (req, res, next) => {
   // console.log(req.user);
   // console.log(req.session);
   if (req.session) {
