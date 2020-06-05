@@ -13,7 +13,7 @@ const authenticate = require('./authenticate');
 // var LocalStrategy = require('passport-local').Strategy;
 // var User = require('./models/user');
 
-// const indexRouter = require('./routes/index');
+const indexRouter = require('./routes/index');
 // const usersRouter = require('./routes/users');
 // const dishRouter = require('./routes/dishRouter');
 // const promoRouter = require('./routes/promoRouter');
@@ -117,8 +117,23 @@ var users = require('./routes/users');
 var dishRouter = require('./routes/dishRouter');
 var promoRouter = require('./routes/promoRouter');
 var leaderRouter = require('./routes/leaderRouter');
+var uploadRouter = require('./routes/uploadRouter');
 
 var app = express();
+
+// Secure traffic only
+app.all('*', (req, res, next) => {
+  if (!req.secure) {
+    console.log('NOT SECURE');
+    res.redirect(
+      307,
+      'https://' + req.hostname + ':' + app.get('secPort') + req.url
+    );
+  } else {
+    next();
+  }
+});
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -136,16 +151,6 @@ connect.then(
   (err) => {
     console.log(err);
   }
-);
-
-app.use(
-  session({
-    name: 'session-id',
-    secret: '12345-567890-12345-78910',
-    saveUninitialized: false,
-    resave: false,
-    store: new FileStore(),
-  })
 );
 
 // view engine setup
@@ -166,9 +171,11 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser);
 passport.deserializeUser(User.deserializeUser);
 
+app.use('/', indexRouter);
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
+app.use('/imageUpload', uploadRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
